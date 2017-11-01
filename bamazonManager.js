@@ -56,22 +56,26 @@
   function viewProducts() {
    //connects to the mysql database called products and returns the information from that database
     connection.query('SELECT * FROM Products', function(err, res){
-      if (err) throw err;
-      //this creates a table outline in the node app to organize the data
-      var table = createTable();
-      //this loops through the mysql connection and for each item that is returned, the information is then pushed to the table
-      for(var i=0; i<res.length; i++){
-        table.push(
-          [res[i].ItemID, res[i].ProductName, res[i].DepartmentName, res[i].Price, res[i].StockQuantity]
-        );
-      }
+      if(err) { 
+            console.log('Error: ' + err);
+            connection.end();
+      } else { 
+            //this creates a table outline in the node app to organize the data
+            var table = createTable();
+            //this loops through the mysql connection and for each item that is returned, the information is then pushed to the table
+            for(var i=0; i<res.length; i++){
+              table.push(
+                [res[i].ItemID, res[i].ProductName, res[i].DepartmentName, res[i].Price, res[i].StockQuantity]
+              );
+            }
 
-      //this console.logs the table and then ends the mysql query connection
-      console.log('');
-      console.log(colors.black.bgWhite.underline('Products for Sale'));
-      console.log('');  
-      console.log(table.toString());
-      connection.end();
+            //this console.logs the table and then ends the mysql query connection
+            console.log('');
+            console.log(colors.black.bgWhite.underline('Products for Sale'));
+            console.log('');  
+            console.log(table.toString());
+            connection.end();
+      }      
     })
   };
 
@@ -79,20 +83,26 @@
   // option2 - view Low Inventory Products
   function lowInventory() {
     connection.query("SELECT * FROM products WHERE StockQuantity < 35 ", function(err, res) {
-      //this creates a table outline in the node app to organize the data
-      var table = createTable();
-      //this loops through the mysql connection and for each item that is returned, the information is then pushed to the table
-      for(var i=0; i<res.length; i++){
-        table.push(
-           [res[i].ItemID, res[i].ProductName, res[i].DepartmentName, res[i].Price, res[i].StockQuantity]
-        );
+      
+      if(err) { 
+            console.log('Error: ' + err);
+            connection.end();
+      } else { 
+            //this creates a table outline in the node app to organize the data
+            var table = createTable();
+            //this loops through the mysql connection and for each item that is returned, the information is then pushed to the table
+            for(var i=0; i<res.length; i++){
+              table.push(
+                 [res[i].ItemID, res[i].ProductName, res[i].DepartmentName, res[i].Price, res[i].StockQuantity]
+              );
+            }
+            //this console.logs the table and then ends the mysql query connection
+            console.log('');
+            console.log(colors.black.bgWhite.underline('Items With Low Inventory'));
+            console.log('');  
+            console.log(table.toString());
+            connection.end();
       }
-      //this console.logs the table and then ends the mysql query connection
-      console.log('');
-      console.log(colors.black.bgWhite.underline('Items With Low Inventory'));
-      console.log('');  
-      console.log(table.toString());
-      connection.end();
     })
   };
 
@@ -128,23 +138,27 @@
     //connect to the mysql database Products and sets the stock quanitity to the number entered in the prompt above + the current stock quantity for a specific item iD
     connection.query("UPDATE Products SET StockQuantity = (StockQuantity + ?) WHERE ItemID = ?;", [inventoryUpdate[0].inventoryAmount, inventoryUpdate[0].inventoryID], function(err, result){
 
-      if(err) console.log('error '+ err);
-      //then this selects the newly updated information from the mysql database so we can console.log a confirmation to the user with the updated stock amount
-        connection.query("SELECT * FROM Products WHERE ItemID = ?", inventoryUpdate[0].inventoryID, function(error, resOne){
-        //this creates a table outline in the node app to organize the data
-        var table = createTable();
-        // load new inventory to table
-        table.push(
-           [resOne[0].ItemID, resOne[0].ProductName, resOne[0].DepartmentName, resOne[0].Price, resOne[0].StockQuantity]
-        );
-        //this console.logs the table and then ends the mysql query connection
-        console.log('');
+        if(err) {
+            console.log('Error: ' + err);
+            connection.end();
+        } else {  
+          //then this selects the newly updated information from the mysql database so we can console.log a confirmation to the user with the updated stock amount
+            connection.query("SELECT * FROM Products WHERE ItemID = ?", inventoryUpdate[0].inventoryID, function(error, resOne){
+            //this creates a table outline in the node app to organize the data
+            var table = createTable();
+            // load new inventory to table
+            table.push(
+               [resOne[0].ItemID, resOne[0].ProductName, resOne[0].DepartmentName, resOne[0].Price, resOne[0].StockQuantity]
+            );
+            //this console.logs the table and then ends the mysql query connection
+            console.log('');
 
-        console.log('The new updated stock quantity for id# '+inventoryUpdate[0].inventoryID+ ' is ' + resOne[0].StockQuantity);
-        console.log('');
-        console.log(table.toString());
-        connection.end();
-        })
+            console.log('The new updated stock quantity for id# '+inventoryUpdate[0].inventoryID+ ' is ' + resOne[0].StockQuantity);
+            console.log('');
+            console.log(table.toString());
+            connection.end();
+            })
+       }
       })
     })
   };
@@ -182,19 +196,23 @@
       //connects to mysql and inserts the responses to the prompt into the mysql database to create a new product within the database
       connection.query('INSERT INTO Products (ItemID, ProductName, DepartmentName, Price, StockQuantity) VALUES (?, ?, ?, ?, ?);', [addedProduct[0].newIdNum, addedProduct[0].newItemName, addedProduct[0].newItemDepartment, addedProduct[0].newItemPrice, addedProduct[0].newStockQuantity], function(err, result){
 
-        if(err) console.log('Error: ' + err);
-        //this creates a table outline in the node app to organize the data
-        var table = createTable();
-        // load new item into table
-        table.push(
-           [addedProduct[0].newIdNum, addedProduct[0].newItemName,addedProduct[0].newItemDepartment, addedProduct[0].newItemPrice, addedProduct[0].newStockQuantity]
-        );
-        //this console.logs the table and then ends the mysql query connection
-        console.log('');
-        console.log(colors.black.bgWhite.underline('New Item Added'));
-        console.log('');
-        console.log(table.toString());
-        connection.end();
+        if(err) {
+            console.log('Error: ' + err);
+            connection.end();
+        } else {  
+            //this creates a table outline in the node app to organize the data
+            var table = createTable();
+            // load new item into table
+            table.push(
+               [addedProduct[0].newIdNum, addedProduct[0].newItemName,addedProduct[0].newItemDepartment, addedProduct[0].newItemPrice, addedProduct[0].newStockQuantity]
+            );
+            //this console.logs the table and then ends the mysql query connection
+            console.log('');
+            console.log(colors.black.bgWhite.underline('New Item Added'));
+            console.log('');
+            console.log(table.toString());
+            connection.end();
+        }
        })
     })
   };

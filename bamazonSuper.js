@@ -58,20 +58,22 @@
      
       //connects to the mysql databased and grabs the information from the alias table called totalprofits.  this table contains all information from the Department database but also has an extra column that calculates how much the total profits are based on the overhead cost and the total sales made for each department
       connection.query('SELECT * FROM totalprofits', function(err, res){
-        if(err) console.log('Error: ' + err);
-        console.log(' ');
-        console.log(colors.black.bgWhite.underline('Product Sales by Department'));
-        console.log(' ');
-        //this loops through the data pulled from the totalprofits database and pushes it into the table above
-        for(var i = 0; i<res.length; i++){
-          table.push(
-            [res[i].DepartmentId, res[i].DepartmentName, res[i].OverHeadCosts, res[i].TotalSales, res[i].TotalProfit]
-            );
+        if(err){
+            console.log('Error: ' + err);
+            connection.end();
+        } else {
+            console.log(' ');
+            console.log(colors.black.bgWhite.underline('Product Sales by Department'));
+            console.log(' ');
+            //this loops through the data pulled from the totalprofits database and pushes it into the table above
+            for(var i = 0; i<res.length; i++){
+              table.push(
+                [res[i].DepartmentId, res[i].DepartmentName, res[i].OverHeadCosts, res[i].TotalSales, res[i].TotalProfit]
+                );
+            }
+            console.log(table.toString());
+            connection.end();
         }
-
-  
-        console.log(table.toString());
-        connection.end();
       })
     };
 
